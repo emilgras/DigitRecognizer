@@ -55,7 +55,7 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="255" height="171.5"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AKz-Ie-27H" customClass="SpringButton" customModule="Spring">
-                                                        <rect key="frame" x="66" y="9.5" width="153" height="153"/>
+                                                        <rect key="frame" x="86" y="28" width="117" height="117"/>
                                                         <color key="backgroundColor" red="0.38975607395372081" green="0.67975283363908645" blue="0.92810880829015552" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="AKz-Ie-27H" secondAttribute="height" multiplier="1:1" id="5pE-uJ-4Ws"/>
@@ -71,7 +71,7 @@
                                                 </subviews>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <constraints>
-                                                    <constraint firstItem="AKz-Ie-27H" firstAttribute="centerX" secondItem="2SR-pz-8M2" secondAttribute="centerX" constant="15" id="EGV-4A-059"/>
+                                                    <constraint firstItem="AKz-Ie-27H" firstAttribute="centerX" secondItem="2SR-pz-8M2" secondAttribute="centerX" constant="17" id="EGV-4A-059"/>
                                                     <constraint firstItem="AKz-Ie-27H" firstAttribute="centerY" secondItem="2SR-pz-8M2" secondAttribute="centerY" id="k8j-Z9-SPi"/>
                                                 </constraints>
                                             </view>
@@ -79,7 +79,7 @@
                                                 <rect key="frame" x="255" y="0.0" width="255" height="171.5"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b1F-a9-CcH" customClass="SpringButton" customModule="Spring">
-                                                        <rect key="frame" x="23.5" y="-3.5" width="178.5" height="178.5"/>
+                                                        <rect key="frame" x="38.5" y="14" width="144" height="144"/>
                                                         <color key="backgroundColor" red="0.28007653241725911" green="0.80877590673575128" blue="0.43728304038604043" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="b1F-a9-CcH" secondAttribute="height" multiplier="1:1" id="CQb-9k-MLl"/>
@@ -95,7 +95,7 @@
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <constraints>
                                                     <constraint firstItem="b1F-a9-CcH" firstAttribute="centerY" secondItem="T20-6g-bQU" secondAttribute="centerY" id="5eq-lp-qfl"/>
-                                                    <constraint firstItem="b1F-a9-CcH" firstAttribute="centerX" secondItem="T20-6g-bQU" secondAttribute="centerX" constant="-15" id="a7b-fj-a8p"/>
+                                                    <constraint firstItem="b1F-a9-CcH" firstAttribute="centerX" secondItem="T20-6g-bQU" secondAttribute="centerX" constant="-17" id="a7b-fj-a8p"/>
                                                 </constraints>
                                             </view>
                                         </subviews>
@@ -105,8 +105,6 @@
                                             <constraint firstAttribute="bottom" secondItem="T20-6g-bQU" secondAttribute="bottom" id="8Nc-6s-jTZ"/>
                                             <constraint firstItem="T20-6g-bQU" firstAttribute="top" secondItem="KQz-FR-qtB" secondAttribute="top" id="Leq-L5-KZi"/>
                                             <constraint firstItem="2SR-pz-8M2" firstAttribute="leading" secondItem="KQz-FR-qtB" secondAttribute="leading" id="LiT-0i-rfZ"/>
-                                            <constraint firstItem="AKz-Ie-27H" firstAttribute="width" secondItem="KQz-FR-qtB" secondAttribute="width" multiplier="0.3" id="ZYl-2G-MUg"/>
-                                            <constraint firstItem="b1F-a9-CcH" firstAttribute="width" secondItem="KQz-FR-qtB" secondAttribute="width" multiplier="0.35" id="b13-1Y-WuF"/>
                                             <constraint firstItem="2SR-pz-8M2" firstAttribute="top" secondItem="KQz-FR-qtB" secondAttribute="top" id="e85-bg-Bep"/>
                                             <constraint firstItem="T20-6g-bQU" firstAttribute="width" secondItem="2SR-pz-8M2" secondAttribute="width" id="gkc-j2-Uca"/>
                                             <constraint firstAttribute="trailing" secondItem="T20-6g-bQU" secondAttribute="trailing" id="vsE-1G-wks"/>
@@ -131,9 +129,11 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="AKz-Ie-27H" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.13" id="2vd-Kx-7fL"/>
                             <constraint firstItem="mBd-18-vaE" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="9hj-oA-MhL"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="mBd-18-vaE" secondAttribute="bottom" constant="20" id="HCt-mZ-Vmf"/>
                             <constraint firstItem="mBd-18-vaE" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Hif-2H-PPa"/>
+                            <constraint firstItem="b1F-a9-CcH" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.16" id="mf0-wG-YQw"/>
                             <constraint firstItem="mBd-18-vaE" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="0.85" id="uU5-7I-7IV"/>
                         </constraints>
                     </view>
@@ -143,12 +143,12 @@
                     <connections>
                         <outlet property="clearButton" destination="AKz-Ie-27H" id="OWb-hl-y45"/>
                         <outlet property="clearButtonCenterYConstraint" destination="k8j-Z9-SPi" id="AbC-i1-EHa"/>
-                        <outlet property="clearButtonPropWidth" destination="ZYl-2G-MUg" id="aPD-9l-vE6"/>
+                        <outlet property="clearButtonPropHeight" destination="2vd-Kx-7fL" id="mNi-eI-vNH"/>
                         <outlet property="containerView" destination="mBd-18-vaE" id="WTd-H6-ukf"/>
                         <outlet property="drawImageView" destination="Og0-vR-o8q" id="Xri-pH-fHB"/>
                         <outlet property="recognizeButton" destination="b1F-a9-CcH" id="zuQ-JJ-lyX"/>
                         <outlet property="recognizeButtonCenterYConstraint" destination="5eq-lp-qfl" id="XOW-r6-34v"/>
-                        <outlet property="recognizeButtonPropWidth" destination="b13-1Y-WuF" id="5xP-QH-t85"/>
+                        <outlet property="recognizeButtonPropHeight" destination="mf0-wG-YQw" id="4JQ-gz-dTq"/>
                         <outlet property="resultLabel" destination="Cv2-VZ-p3V" id="cyj-6o-egC"/>
                         <outlet property="shadowView" destination="IID-Bg-TAD" id="ZGI-yb-7Eg"/>
                         <outlet property="shadowViewCenterXConstraint" destination="DqN-pr-QNb" id="OLY-vb-GdO"/>

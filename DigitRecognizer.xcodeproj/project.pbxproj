@@ -13,7 +13,8 @@
 		F20401931E7AB41E003FE876 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F20401921E7AB41E003FE876 /* Assets.xcassets */; };
 		F20401961E7AB41E003FE876 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F20401941E7AB41E003FE876 /* LaunchScreen.storyboard */; };
 		F204019E1E7AB437003FE876 /* RecognizerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F204019D1E7AB437003FE876 /* RecognizerVC.swift */; };
-		F20401A01E7ACC24003FE876 /* RequestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F204019F1E7ACC24003FE876 /* RequestUtils.swift */; };
+		F20401A01E7ACC24003FE876 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F204019F1E7ACC24003FE876 /* RequestManager.swift */; };
+		F23CDFE81E91662D005ED90D /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = F23CDFE71E91662D005ED90D /* Util.swift */; };
 		F2EAE9DE1E9005540044FAF4 /* Animator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2EAE9DD1E9005540044FAF4 /* Animator.swift */; };
 /* End PBXBuildFile section */
 
@@ -28,7 +29,8 @@
 		F20401951E7AB41E003FE876 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F20401971E7AB41E003FE876 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F204019D1E7AB437003FE876 /* RecognizerVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecognizerVC.swift; sourceTree = "<group>"; };
-		F204019F1E7ACC24003FE876 /* RequestUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestUtils.swift; sourceTree = "<group>"; };
+		F204019F1E7ACC24003FE876 /* RequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
+		F23CDFE71E91662D005ED90D /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		F2EAE9DD1E9005540044FAF4 /* Animator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Animator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -85,11 +87,12 @@
 				F204018B1E7AB41E003FE876 /* AppDelegate.swift */,
 				F204019D1E7AB437003FE876 /* RecognizerVC.swift */,
 				F2EAE9DD1E9005540044FAF4 /* Animator.swift */,
-				F204019F1E7ACC24003FE876 /* RequestUtils.swift */,
+				F204019F1E7ACC24003FE876 /* RequestManager.swift */,
 				F204018F1E7AB41E003FE876 /* Main.storyboard */,
 				F20401921E7AB41E003FE876 /* Assets.xcassets */,
 				F20401941E7AB41E003FE876 /* LaunchScreen.storyboard */,
 				F20401971E7AB41E003FE876 /* Info.plist */,
+				F23CDFE71E91662D005ED90D /* Util.swift */,
 			);
 			path = DigitRecognizer;
 			sourceTree = "<group>";
@@ -219,7 +222,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F2EAE9DE1E9005540044FAF4 /* Animator.swift in Sources */,
-				F20401A01E7ACC24003FE876 /* RequestUtils.swift in Sources */,
+				F20401A01E7ACC24003FE876 /* RequestManager.swift in Sources */,
+				F23CDFE81E91662D005ED90D /* Util.swift in Sources */,
 				F204019E1E7AB437003FE876 /* RecognizerVC.swift in Sources */,
 				F204018C1E7AB41E003FE876 /* AppDelegate.swift in Sources */,
 			);

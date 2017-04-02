@@ -13,40 +13,41 @@ import NVActivityIndicatorView
 
 class RecognizerVC: UIViewController {
 
-    var indicator: NVActivityIndicatorView!
-    var screenWidth: CGFloat!
-    var lastPoint:CGPoint?
-    var isSwiping:Bool!
-    var processing:Bool!
+    // MARK: - Instance Variables
+    
+    fileprivate var indicator: NVActivityIndicatorView!
+    fileprivate var api: RequestManager!
+    fileprivate var lastPoint:CGPoint?
+    fileprivate var processing:Bool!
+    
+    // MARK: - IB Outlets
     
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var drawImageView: SpringImageView!
     @IBOutlet weak var shadowView: SpringView!
     @IBOutlet weak var resultLabel: SpringLabel!
     @IBOutlet weak var recognizeButton: SpringButton!
-    @IBOutlet weak var recognizeButtonPropWidth: NSLayoutConstraint!
     @IBOutlet weak var clearButton: SpringButton!
-    @IBOutlet weak var clearButtonPropWidth: NSLayoutConstraint!
+    @IBOutlet weak var recognizeButtonPropHeight: NSLayoutConstraint!
+    @IBOutlet weak var clearButtonPropHeight: NSLayoutConstraint!
     @IBOutlet weak var shadowViewCenterXConstraint: NSLayoutConstraint!
     @IBOutlet weak var clearButtonCenterYConstraint: NSLayoutConstraint!
     @IBOutlet weak var recognizeButtonCenterYConstraint: NSLayoutConstraint!
+
+    // MARK: - IB Actions
     
     @IBAction func recognizeButtonTapped(_ sender: Any) {
-        
         guard let _ = lastPoint else {
             Animator.animate(View: shadowView, withAnimation: "shake", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
             return
         }
-
         Animator.animate(View: recognizeButton, withAnimation: "pop", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
         updateUI(WithResult: " ", andUserInteractionEnabled: false)
-        
         guard let image = drawImageView.image else {
             self.updateUI(WithResult: "Oops! Error", andUserInteractionEnabled: true)
             Animator.animate(View: shadowView, withAnimation: "shake", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
             return
         }
-        
         guard let imageData = UIImagePNGRepresentation(image) else {
             self.updateUI(WithResult: "Oops! Error", andUserInteractionEnabled: true)
             Animator.animate(View: shadowView, withAnimation: "shake", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
@@ -56,73 +57,25 @@ class RecognizerVC: UIViewController {
         processing = true
         indicator.startAnimating()
         
-        RequestUtils.sendRequest(withImageData: imageData) { (result, error) in
+        api.sendRequest(withImageData: imageData) { (result, error) in
             self.processing = false
             DispatchQueue.main.async {
                 self.indicator.stopAnimating()
             }
-            
             if let error = error {
                 // TODO: Handle Server or Connection Error
                 print("Error: \(String(describing: error.localizedDescription))")
                 self.updateUI(WithResult: "Oops! Server Error", andUserInteractionEnabled: true)
                 return
             }
-            
             guard let result = result else {
                 // TODO: Handle Server or Connection Error
                 print("Error: Server Error")
                 self.updateUI(WithResult: "Oops! Server Error", andUserInteractionEnabled: true)
                 return
             }
-            
             AudioServicesPlayAlertSoundWithCompletion(SystemSoundID(kSystemSoundID_Vibrate), nil)
             self.updateUI(WithResult: "\(result)", andUserInteractionEnabled: true)
-        }
-        
-//        if let image = drawImageView.image {
-//            
-//            // TODO: lav guard let istedet
-//            if let imageData = UIImagePNGRepresentation(image) {
-//                
-//                self.processing = true
-//                // TODO: Stop indicator
-//                
-//                RequestUtils.sendRequest(withImageData: imageData, completion: { (result, error) in
-//                    
-//                    
-//                    
-//                    if let error = error {
-//                        // TODO: Handle Error
-//                        print("Error: \(String(describing: error.localizedDescription))")
-//                        self.updateUI(WithResult: "Server Error", andUserInteractionEnabled: true)
-//                        return
-//                    }
-//
-//                    guard let result = result else {
-//                        // TODO: Handle Error
-//                        print("Error: Error")
-//                        self.updateUI(WithResult: "Error", andUserInteractionEnabled: true)
-//                        return
-//                    }
-//                    
-//                    AudioServicesPlayAlertSoundWithCompletion(SystemSoundID(kSystemSoundID_Vibrate), nil)
-//                    self.updateUI(WithResult: "\(result)", andUserInteractionEnabled: true)
-//                    
-//                })
-//                
-//            }
-//        }
-    }
-    
-    fileprivate func updateUI(WithResult result: String, andUserInteractionEnabled enabled: Bool) {
-        DispatchQueue.main.async {
-            Animator.animate(View: self.resultLabel, withAnimation: "morph", withCurve: "spring", withDuration: 1.5, withDelay: 0.0, withDamping: 0.5, withScale: 1.0, withForce: 1.0, withRotation: nil)
-            self.lastPoint = nil
-            self.recognizeButton.isUserInteractionEnabled = enabled
-            self.clearButton.isUserInteractionEnabled = enabled
-            self.drawImageView.isUserInteractionEnabled = enabled
-            self.resultLabel.text = result
         }
     }
     
@@ -130,52 +83,63 @@ class RecognizerVC: UIViewController {
         Animator.animate(View: clearButton, withAnimation: "pop", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
         self.lastPoint = nil
         self.drawImageView.image = nil
-        self.clearButton.titleLabel?.text = "Clear"
         self.resultLabel.text = "?"
     }
     
+    // MARK: - Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        indicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+        initIndicatorView()
+        initInstanceVariables()
+        updateAppearanceForViews()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        prepareAnimations()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        startAnimations()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+    }
+    
+    // MARK: - Initializer Methods
+    
+    fileprivate func initIndicatorView() {
+        indicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
         indicator.type = NVActivityIndicatorType.ballRotateChase
         indicator.color = UIColor(hex: "262626")
-        indicator.padding = 8.0
         self.containerView.addSubview(indicator)
         
         indicator.translatesAutoresizingMaskIntoConstraints = false
-        
-        // TODO: Take constants and put them somewhere else
-        
         // centerX & centerY constraints
         containerView.addConstraint(NSLayoutConstraint(item: indicator, attribute: .centerX, relatedBy: .equal, toItem: self.containerView, attribute: .centerX, multiplier: 1, constant: 0))
         containerView.addConstraint(NSLayoutConstraint(item: indicator, attribute: .centerY, relatedBy: .equal, toItem: self.resultLabel, attribute:.centerY, multiplier: 1, constant: 0))
         // wisth & height constraints
-        containerView.addConstraint(NSLayoutConstraint(item: indicator, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute,multiplier: 1, constant: 90))
-        containerView.addConstraint(NSLayoutConstraint(item: indicator, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 90))
-        
+        containerView.addConstraint(NSLayoutConstraint(item: indicator, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute,multiplier: 1, constant: Util.getDeviceType().rawValue * 0.13))
+        containerView.addConstraint(NSLayoutConstraint(item: indicator, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: Util.getDeviceType().rawValue * 0.13))
+    }
+    
+    fileprivate func initInstanceVariables() {
+        self.api = RequestManager()
         self.processing = false
-        self.screenWidth = UIScreen.main.bounds.width
-        addCornerRadius(toComponent: clearButton, withValue: ((self.screenWidth * 0.85 * clearButtonPropWidth.multiplier) / 2), masksToBounds: false)
-        addCornerRadius(toComponent: recognizeButton, withValue: ((self.screenWidth * 0.85 * recognizeButtonPropWidth.multiplier) / 2), masksToBounds: false)
+    }
+    
+    fileprivate func updateAppearanceForViews() {
+        Util.makeFontSizeSpecificToDeviceType(onLabel: resultLabel)
+        addCornerRadius(toComponent: clearButton, withValue: ((Util.getDeviceType().rawValue * clearButtonPropHeight.multiplier) / 2), masksToBounds: false)
+        addCornerRadius(toComponent: recognizeButton, withValue: ((Util.getDeviceType().rawValue * recognizeButtonPropHeight.multiplier) / 2), masksToBounds: false)
         addCornerRadius(toComponent: shadowView, withValue: 6.0, masksToBounds: false)
         addCornerRadius(toComponent: drawImageView, withValue: 6.0, masksToBounds: true)
         addShadow(toComponent: shadowView)
         addShadow(toComponent: recognizeButton)
         addShadow(toComponent: clearButton)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setStartPosition()
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        startAnimating()
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
     }
     
     fileprivate func addCornerRadius(toComponent component: UIView, withValue value: CGFloat, masksToBounds masks: Bool) {
@@ -190,88 +154,77 @@ class RecognizerVC: UIViewController {
         component.layer.shadowRadius = 7
     }
     
-    // MARK: Intro Animation
-    fileprivate func setStartPosition() {
-        self.shadowViewCenterXConstraint.constant = -screenWidth
-        self.clearButtonCenterYConstraint.constant = screenWidth
-        self.recognizeButtonCenterYConstraint.constant = screenWidth
+    // MARK: - Animation Methods
+    
+    fileprivate func prepareAnimations() {
+        self.shadowViewCenterXConstraint.constant = -Util.getScreenWidth()
+        self.clearButtonCenterYConstraint.constant = Util.getScreenWidth()
+        self.recognizeButtonCenterYConstraint.constant = Util.getScreenWidth()
     }
     
-    fileprivate func startAnimating() {
+    fileprivate func startAnimations() {
         self.shadowViewCenterXConstraint.constant = 0
-        UIView.animate(withDuration: 0.7, delay: 1.0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.4, options: UIViewAnimationOptions.curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.8, delay: 0.2, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.7, options: UIViewAnimationOptions.curveEaseInOut, animations: {
             self.view.layoutIfNeeded()
         }, completion: nil)
         
         self.clearButtonCenterYConstraint.constant = 0
-        UIView.animate(withDuration: 0.7, delay: 1.3, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.4, options: UIViewAnimationOptions.curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.7, delay: 0.3, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.4, options: UIViewAnimationOptions.curveEaseInOut, animations: {
             self.view.layoutIfNeeded()
         }, completion: nil)
         
         self.recognizeButtonCenterYConstraint.constant = 0
-        UIView.animate(withDuration: 0.6, delay: 1.5, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.4, options: UIViewAnimationOptions.curveEaseInOut, animations: {
+        UIView.animate(withDuration: 0.7, delay: 0.4, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.4, options: UIViewAnimationOptions.curveEaseInOut, animations: {
             self.view.layoutIfNeeded()
         }, completion: nil)
-        
-        Animator.animate(View: self.resultLabel, withAnimation: "zoomIn", withCurve: "spring", withDuration: 0.7, withDelay: 1.8, withDamping: 0.7, withScale: 1.8, withForce: 2.5, withRotation: nil)
-
+        Animator.animate(View: self.resultLabel, withAnimation: "zoomIn", withCurve: "spring", withDuration: 0.7, withDelay: 0.5, withDamping: 0.6, withScale: 1.8, withForce: 2.0, withRotation: nil)
     }
+    
+    // MARK: - Other Helper Methods
+    
+    fileprivate func updateUI(WithResult result: String, andUserInteractionEnabled enabled: Bool) {
+        DispatchQueue.main.async {
+            Animator.animate(View: self.resultLabel, withAnimation: "morph", withCurve: "spring", withDuration: 1.5, withDelay: 0.0, withDamping: 0.5, withScale: 1.0, withForce: 1.0, withRotation: nil)
+            self.recognizeButton.isUserInteractionEnabled = enabled
+            self.clearButton.isUserInteractionEnabled = enabled
+            self.drawImageView.isUserInteractionEnabled = enabled
+            self.resultLabel.text = result
+        }
+    }
+    
+    // MARK: - Gesture Methods
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
         if !processing {
-            print("began....")
-            isSwiping = false
             if let touch = touches.first {
                 lastPoint = touch.location(in: self.drawImageView)
             }
         }
     }
     
-    func drawLines(fromPoint:CGPoint,toPoint:CGPoint) {
-        if !processing {
-            UIGraphicsBeginImageContext(self.drawImageView.frame.size)
-            drawImageView.image?.draw(in: CGRect(x: 0, y: 0, width: self.drawImageView.frame.width, height: self.drawImageView.frame.height))
-            let context = UIGraphicsGetCurrentContext()
-            
-            context?.move(to: CGPoint(x: fromPoint.x, y: fromPoint.y))
-            context?.addLine(to: CGPoint(x: toPoint.x, y: toPoint.y))
-            //tool.center = toPoint
-            
-            context?.setBlendMode(CGBlendMode.normal)
-            context?.setLineCap(CGLineCap.round)
-            context?.setLineWidth(12)
-            context?.setStrokeColor(UIColor(hex: "262626").cgColor)
-            
-            context?.strokePath()
-            
-            drawImageView.image = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-        }
+    fileprivate func drawLines(fromPoint:CGPoint,toPoint:CGPoint) {
+        UIGraphicsBeginImageContext(self.drawImageView.frame.size)
+        drawImageView.image?.draw(in: CGRect(x: 0, y: 0, width: self.drawImageView.frame.width, height: self.drawImageView.frame.height))
+        let context = UIGraphicsGetCurrentContext()
+        context?.move(to: CGPoint(x: fromPoint.x, y: fromPoint.y))
+        context?.addLine(to: CGPoint(x: toPoint.x, y: toPoint.y))
+        context?.setBlendMode(CGBlendMode.normal)
+        context?.setLineCap(CGLineCap.round)
+        context?.setLineWidth(12)
+        context?.setStrokeColor(UIColor(hex: "262626").cgColor)
+        context?.strokePath()
+        drawImageView.image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+        guard let currentPoint = touches.first?.location(in: self.drawImageView) else { return }
         if !processing {
-            isSwiping = true
-            if let touch = touches.first {
-                
-                let currentPoint = touch.location(in: self.drawImageView)
-//                self.lastPoint = currentPoint
-                drawLines(fromPoint: lastPoint!, toPoint: currentPoint)
-                
-                lastPoint = currentPoint
-            }
+            drawLines(fromPoint: lastPoint!, toPoint: currentPoint)
         }
-        
+        lastPoint = currentPoint
     }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        if !processing {
-//            // TODO: lastPoint is not safely unwrapped
-//            drawLines(fromPoint: lastPoint!, toPoint: lastPoint!)
-//        }
-    }
+
 
 }
 
