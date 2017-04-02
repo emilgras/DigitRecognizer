@@ -17,7 +17,7 @@ class RecognizerVC: UIViewController {
     var screenWidth: CGFloat!
     var lastPoint:CGPoint?
     var isSwiping:Bool!
-    var isWorking:Bool!
+    var processing:Bool!
     
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var drawImageView: SpringImageView!
@@ -34,57 +34,91 @@ class RecognizerVC: UIViewController {
     @IBAction func recognizeButtonTapped(_ sender: Any) {
         
         guard let _ = lastPoint else {
-//            AudioServicesPlayAlertSoundWithCompletion(SystemSoundID(kSystemSoundID_Vibrate), nil)
+            Animator.animate(View: shadowView, withAnimation: "shake", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
+            return
+        }
+
+        Animator.animate(View: recognizeButton, withAnimation: "pop", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
+        updateUI(WithResult: " ", andUserInteractionEnabled: false)
+        
+        guard let image = drawImageView.image else {
+            self.updateUI(WithResult: "Oops! Error", andUserInteractionEnabled: true)
             Animator.animate(View: shadowView, withAnimation: "shake", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
             return
         }
         
-        Animator.animate(View: recognizeButton, withAnimation: "pop", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
-        updateUI(WithResult: " ", andUserInteractionEnabled: false)
+        guard let imageData = UIImagePNGRepresentation(image) else {
+            self.updateUI(WithResult: "Oops! Error", andUserInteractionEnabled: true)
+            Animator.animate(View: shadowView, withAnimation: "shake", withCurve: "spring", withDuration: 0.8, withDelay: 0.0, withDamping: 0.7, withScale: 1.0, withForce: 0.5, withRotation: nil)
+            return
+        }
+        
+        processing = true
         indicator.startAnimating()
         
-        // TODO: lav guard let istedet
-        if let image = drawImageView.image {
-            
-            // TODO: lav guard let istedet
-            if let imageData = UIImagePNGRepresentation(image) {
-                
-                self.isWorking = true
-                // TODO: Stop indicator
-                
-                RequestUtils.sendRequest(withImageData: imageData, completion: { (result, error) in
-                    
-                    self.isWorking = false
-                    DispatchQueue.main.async {
-                        self.indicator.stopAnimating()
-                    }
-                    
-                    if let error = error {
-                        // TODO: Handle Error
-                        print("Error: \(String(describing: error.localizedDescription))")
-                        self.updateUI(WithResult: "Server Error", andUserInteractionEnabled: true)
-                        return
-                    }
-
-                    guard let result = result else {
-                        // TODO: Handle Error
-                        print("Error: Error")
-                        self.updateUI(WithResult: "Error", andUserInteractionEnabled: true)
-                        return
-                    }
-                    
-                    AudioServicesPlayAlertSoundWithCompletion(SystemSoundID(kSystemSoundID_Vibrate), nil)
-                    self.updateUI(WithResult: "\(result)", andUserInteractionEnabled: true)
-                    
-                })
-                
+        RequestUtils.sendRequest(withImageData: imageData) { (result, error) in
+            self.processing = false
+            DispatchQueue.main.async {
+                self.indicator.stopAnimating()
             }
+            
+            if let error = error {
+                // TODO: Handle Server or Connection Error
+                print("Error: \(String(describing: error.localizedDescription))")
+                self.updateUI(WithResult: "Oops! Server Error", andUserInteractionEnabled: true)
+                return
+            }
+            
+            guard let result = result else {
+                // TODO: Handle Server or Connection Error
+                print("Error: Server Error")
+                self.updateUI(WithResult: "Oops! Server Error", andUserInteractionEnabled: true)
+                return
+            }
+            
+            AudioServicesPlayAlertSoundWithCompletion(SystemSoundID(kSystemSoundID_Vibrate), nil)
+            self.updateUI(WithResult: "\(result)", andUserInteractionEnabled: true)
         }
+        
+//        if let image = drawImageView.image {
+//            
+//            // TODO: lav guard let istedet
+//            if let imageData = UIImagePNGRepresentation(image) {
+//                
+//                self.processing = true
+//                // TODO: Stop indicator
+//                
+//                RequestUtils.sendRequest(withImageData: imageData, completion: { (result, error) in
+//                    
+//                    
+//                    
+//                    if let error = error {
+//                        // TODO: Handle Error
+//                        print("Error: \(String(describing: error.localizedDescription))")
+//                        self.updateUI(WithResult: "Server Error", andUserInteractionEnabled: true)
+//                        return
+//                    }
+//
+//                    guard let result = result else {
+//                        // TODO: Handle Error
+//                        print("Error: Error")
+//                        self.updateUI(WithResult: "Error", andUserInteractionEnabled: true)
+//                        return
+//                    }
+//                    
+//                    AudioServicesPlayAlertSoundWithCompletion(SystemSoundID(kSystemSoundID_Vibrate), nil)
+//                    self.updateUI(WithResult: "\(result)", andUserInteractionEnabled: true)
+//                    
+//                })
+//                
+//            }
+//        }
     }
     
     fileprivate func updateUI(WithResult result: String, andUserInteractionEnabled enabled: Bool) {
         DispatchQueue.main.async {
             Animator.animate(View: self.resultLabel, withAnimation: "morph", withCurve: "spring", withDuration: 1.5, withDelay: 0.0, withDamping: 0.5, withScale: 1.0, withForce: 1.0, withRotation: nil)
+            self.lastPoint = nil
             self.recognizeButton.isUserInteractionEnabled = enabled
             self.clearButton.isUserInteractionEnabled = enabled
             self.drawImageView.isUserInteractionEnabled = enabled
@@ -119,7 +153,7 @@ class RecognizerVC: UIViewController {
         containerView.addConstraint(NSLayoutConstraint(item: indicator, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute,multiplier: 1, constant: 90))
         containerView.addConstraint(NSLayoutConstraint(item: indicator, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 90))
         
-        self.isWorking = false
+        self.processing = false
         self.screenWidth = UIScreen.main.bounds.width
         addCornerRadius(toComponent: clearButton, withValue: ((self.screenWidth * 0.85 * clearButtonPropWidth.multiplier) / 2), masksToBounds: false)
         addCornerRadius(toComponent: recognizeButton, withValue: ((self.screenWidth * 0.85 * recognizeButtonPropWidth.multiplier) / 2), masksToBounds: false)
@@ -184,7 +218,9 @@ class RecognizerVC: UIViewController {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if !isWorking {
+        
+        if !processing {
+            print("began....")
             isSwiping = false
             if let touch = touches.first {
                 lastPoint = touch.location(in: self.drawImageView)
@@ -193,7 +229,7 @@ class RecognizerVC: UIViewController {
     }
     
     func drawLines(fromPoint:CGPoint,toPoint:CGPoint) {
-        if !isWorking {
+        if !processing {
             UIGraphicsBeginImageContext(self.drawImageView.frame.size)
             drawImageView.image?.draw(in: CGRect(x: 0, y: 0, width: self.drawImageView.frame.width, height: self.drawImageView.frame.height))
             let context = UIGraphicsGetCurrentContext()
@@ -215,10 +251,13 @@ class RecognizerVC: UIViewController {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if !isWorking {
+        
+        if !processing {
             isSwiping = true
             if let touch = touches.first {
+                
                 let currentPoint = touch.location(in: self.drawImageView)
+//                self.lastPoint = currentPoint
                 drawLines(fromPoint: lastPoint!, toPoint: currentPoint)
                 
                 lastPoint = currentPoint
@@ -228,10 +267,10 @@ class RecognizerVC: UIViewController {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if !isSwiping {
-            // TODO: lastPoint is not safely unwrapped
-            drawLines(fromPoint: lastPoint!, toPoint: lastPoint!)
-        }
+//        if !processing {
+//            // TODO: lastPoint is not safely unwrapped
+//            drawLines(fromPoint: lastPoint!, toPoint: lastPoint!)
+//        }
     }
 
 }
