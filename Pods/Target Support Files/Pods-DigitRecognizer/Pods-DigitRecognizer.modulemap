@@ -1,0 +1,6 @@
+framework module Pods_DigitRecognizer {
+  umbrella header "Pods-DigitRecognizer-umbrella.h"
+
+  export *
+  module * { export * }
+}
